@@ -1,7 +1,7 @@
 const mongoose = require ('mongoose')
 
 // Modèle sauce
-const thingSchema = mongoose.Schema({
+const saucesSchema = mongoose.Schema({
 
     userId :{type:String, required :true},
     name: {type:String, required :true},
@@ -10,11 +10,11 @@ const thingSchema = mongoose.Schema({
     mainPepper: {type:String, required :true},
     imageUrl: {type:String, required :true},
     heat: {type:Number, required :true},
-    likes: {type:Number, required :true},
-    dislikes: {type:Number, required :true},
-    usersLiked: {type:String, required :true},
-    usersDisliked: {type:String, required :true}
+    likes: {type:Number, required :true, default: 0},
+    dislikes: {type:Number, required :true, default: 0},
+    usersLiked: {type:[String], required :true},
+    usersDisliked: {type:[String], required :true,}
 
 })
 
-module.exports = mongoose.model("Thing", thingSchema)
+module.exports = mongoose.model("Sauce", saucesSchema)

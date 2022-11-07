@@ -1,7 +1,8 @@
+require('dotenv').config()
 const express = require('express')
 const mongoose = require('mongoose');
-const bodyParser = require ('body-parser')
 const path = require('path');
+const helmet = require('helmet')
 
 const sauceRoutes = require('./routes/sauces')
 const userRoutes = require ('./routes/user')
@@ -13,14 +14,8 @@ const http = require("http")
 const server = http.createServer(app)
 server.listen(process.env.PORT||3000,() => console.log("Listening on port 3000"))
 
-// Clé mongoDB
-require('dotenv').config()
-const token = process.env.TOKEN
-const user = process.env.User
-
-
 // Connexion à mongodb
-mongoose.connect(`mongodb+srv://${user}:${token}@cluster0.hqsunjv.mongodb.net/?retryWrites=true&w=majority`,
+mongoose.connect(`mongodb+srv://${process.env.MONGODB_USER}:${process.env.MONGODB_PASSWORD}@${process.env.MONGODB_CLUSTER_NAME}.${process.env.MONGODB_DATABASE_NAME}.mongodb.net/?retryWrites=true&w=majority`,
     {
 
     }).then(() => console.log('Connexion à MongoDB réussie !'))
@@ -35,12 +30,13 @@ app.use((req, res, next) => {
 });
 
 app.use(express.json());
-app.use(bodyParser.json());
+app.use(helmet({crossOriginResourcePolicy: false}))
+
+app.use('/images', express.static(path.join(__dirname, 'images')))
 
 app.use('/api/sauces',sauceRoutes)
 app.use('/api/auth',userRoutes)
-app.use('/api/auth',userRoutes)
-app.use('/images', express.static(path.join(__dirname, 'images')))
+
 
 module.exports = app;
 

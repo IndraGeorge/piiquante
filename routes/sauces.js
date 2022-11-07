@@ -5,11 +5,11 @@ const multer = require ('../middleware/multer-config')
 const auth = require('../middleware/auth')
 
 // Routes API CRUD
-router.post('/', auth, multer, stuffCtrl.createThing)
-router.put('/:id',auth, multer, stuffCtrl.modifyThing )
-router.delete('/:id',auth, stuffCtrl.deleteThing ) 
-router.get('/', auth, stuffCtrl.getThings)
-router.get('/:id', auth, stuffCtrl.getOnething)
-router.post('/:id/like', auth, multer, stuffCtrl.getLikesThing)
+router.post('/', auth, multer, stuffCtrl.createSauce)
+router.post('/:id/like', auth, multer, stuffCtrl.getLikesSauce)
+router.put('/:id',auth, multer, stuffCtrl.modifySauce )
+router.delete('/:id',auth, stuffCtrl.deleteSauce ) 
+router.get('/', auth, stuffCtrl.getSauces)
+router.get('/:id', auth, stuffCtrl.getOneSauce)
 
  module.exports = router;
