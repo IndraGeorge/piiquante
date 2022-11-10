@@ -3,6 +3,10 @@ const express = require('express')
 const mongoose = require('mongoose');
 const path = require('path');
 const helmet = require('helmet')
+const nocache = require("nocache")
+const xss = require("xss");
+const html = xss('<script>alert("xss");</script>');
+console.log(html);
 
 const sauceRoutes = require('./routes/sauces')
 const userRoutes = require ('./routes/user')
@@ -30,10 +34,13 @@ app.use((req, res, next) => {
 });
 
 app.use(express.json());
-app.use(helmet({crossOriginResourcePolicy: false}))
 
 app.use('/images', express.static(path.join(__dirname, 'images')))
 
+app.use(helmet())
+app.use(nocache())
+
+// Routes sauces
 app.use('/api/sauces',sauceRoutes)
 app.use('/api/auth',userRoutes)
 

@@ -6,7 +6,7 @@ const auth = require('../middleware/auth')
 
 // Routes API CRUD
 router.post('/', auth, multer, stuffCtrl.createSauce)
-router.post('/:id/like', auth, stuffCtrl.getLikesSauce)
+router.post('/:id/like', auth, stuffCtrl.likesAndDislikeSauce)
 router.put('/:id',auth, multer, stuffCtrl.modifySauce )
 router.delete('/:id',auth, stuffCtrl.deleteSauce ) 
 router.get('/', auth, stuffCtrl.getSauces)
