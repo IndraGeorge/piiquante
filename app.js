@@ -1,12 +1,10 @@
 require('dotenv').config()
 const express = require('express')
-const mongoose = require('mongoose');
-const path = require('path');
+const mongoose = require('mongoose')
+const path = require('path')
 const helmet = require('helmet')
 const nocache = require("nocache")
-const xss = require("xss");
-const html = xss('<script>alert("xss");</script>');
-console.log(html);
+const mongoSanitize = require('express-mongo-sanitize')
 
 const sauceRoutes = require('./routes/sauces')
 const userRoutes = require ('./routes/user')
@@ -35,10 +33,13 @@ app.use((req, res, next) => {
 
 app.use(express.json());
 
+// Sauvegarde des images en local
 app.use('/images', express.static(path.join(__dirname, 'images')))
 
 app.use(helmet())
 app.use(nocache())
+app.use(mongoSanitize());
+
 
 // Routes sauces
 app.use('/api/sauces',sauceRoutes)
