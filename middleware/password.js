@@ -20,8 +20,8 @@ module.exports = (req, res, next) => {
         next()
 
     } else {
-        return res.status(400).json({error: `Le mot de passe doit contenir minimum 8 caractères,
-        dont 1 majuscule, 1 minuscule, 2 chiffres `})
+        return res.status(400).json({error: ` The password must contain at least 8 characters,
+        including 1 uppercase, 1 lowercase, 2 digits`})
         
     }
 }

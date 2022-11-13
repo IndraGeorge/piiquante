@@ -4,21 +4,34 @@ const fs = require('fs')
 // Créer une sauce
 exports.createSauce = (req, res, next) => {
     const sauceObject = JSON.parse(req.body.sauce)
-    delete sauceObject._id;
-    delete sauceObject.userId
-    const sauce = new Sauce({
-        ...sauceObject,
-        userId: req.auth.userId,
-        imageUrl: `${req.protocol}://${req.get('host')}/images/${req.file.filename}`
-    });
-    sauce.save()
-        .then(() => res.status(201).json({ message: "Saved Sauce" }))
-        .catch(error => res.status(400).json({ error }));
+    let regexLetter = new RegExp("^[\-a-zA-Zéèîëïäöüçâ ]{3,30}$")
+
+    // Condition afin de vérifier la validité des champs saisies pour la création d'une sauce
+    if (regexLetter.test(sauceObject.name) && regexLetter.test(sauceObject.manufacturer) &&
+        regexLetter.test(sauceObject.description) && regexLetter.test(sauceObject.mainPepper)) {
+
+        // Suppression de l'id et de l'userId renvoyer par mangoDB
+        delete sauceObject._id;
+        delete sauceObject.userId
+
+        const sauce = new Sauce({
+            ...sauceObject,
+            userId: req.auth.userId,
+            imageUrl: `${req.protocol}://${req.get('host')}/images/${req.file.filename}`
+        });
+        sauce.save()
+            .then(() => res.status(201).json({ message: "Saved Sauce" }))
+            .catch(error => res.status(400).json({ error }));
+
+    } else {
+        return res.status(400).json({ error: "Please enter correct information" })
+    }
 };
 
 
 // Mofifier une sauce
 exports.modifySauce = (req, res, next) => {
+
     const sauceObject = req.file ? {
 
         ...JSON.parse(req.body.sauce),
@@ -26,6 +39,7 @@ exports.modifySauce = (req, res, next) => {
     } : { ...req.body }
 
     delete sauceObject.userId
+
     Sauce.findOne({ _id: req.params.id })
         .then(sauce => {
             if (req.auth.userId !== sauce.userId) {
@@ -39,20 +53,21 @@ exports.modifySauce = (req, res, next) => {
                     .then(() => res.status(201).json({ message: "modified sauce" }))
 
                     // Condition afin de vérifier si l'image a été modifiée
-                    .then(sauce => {
-                        if (sauce.imageUrl !== req.body.sauce) {
+                    .then(() => {
+                        if (req.file) {
                             fs.unlink(`images/${filename}`, () => {
                                 console.log("old picture deleted")
                             })
-                        }else {
+                        } else {
                             console.log("preserved image")
                         }
 
                     })
                     .catch(error => res.status(400).json({ error }));
             }
-        }) 
+        })
         .catch(error => res.status(500).json({ error }))
+     
 };
 
 

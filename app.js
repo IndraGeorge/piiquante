@@ -40,7 +40,6 @@ app.use(helmet())
 app.use(nocache())
 app.use(mongoSanitize());
 
-
 // Routes sauces
 app.use('/api/sauces',sauceRoutes)
 app.use('/api/auth',userRoutes)
