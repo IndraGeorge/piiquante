@@ -1,15 +1,16 @@
 const express = require('express');
 const router = express.Router();
-const stuffCtrl = require('../controllers/sauces')
+const sauceCtrl = require('../controllers/sauces')
+const likeCtrl = require('../controllers/like')
 const multer = require ('../middleware/multer-config')
 const auth = require('../middleware/auth')
 
 // Routes API CRUD
-router.post('/', auth, multer, stuffCtrl.createSauce)
-router.post('/:id/like', auth, stuffCtrl.likesAndDislikeSauce)
-router.put('/:id',auth, multer, stuffCtrl.modifySauce )
-router.delete('/:id',auth, stuffCtrl.deleteSauce ) 
-router.get('/', auth, stuffCtrl.getSauces)
-router.get('/:id', auth, stuffCtrl.getOneSauce)
+router.post('/', auth, multer, sauceCtrl.createSauce)
+router.post('/:id/like', auth, likeCtrl.likesAndDislikeSauce)
+router.put('/:id',auth, multer, sauceCtrl.modifySauce )
+router.delete('/:id',auth, sauceCtrl.deleteSauce ) 
+router.get('/', auth, sauceCtrl.getSauces)
+router.get('/:id', auth, sauceCtrl.getOneSauce)
 
  module.exports = router;

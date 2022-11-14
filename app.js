@@ -5,7 +5,9 @@ const path = require('path')
 const helmet = require('helmet')
 const nocache = require("nocache")
 const mongoSanitize = require('express-mongo-sanitize')
+const rateLimit = require('express-rate-limit')
 
+// Déclaration des constantes pour les routes sauce et utilisateur
 const sauceRoutes = require('./routes/sauces')
 const userRoutes = require ('./routes/user')
 
@@ -40,9 +42,17 @@ app.use(helmet())
 app.use(nocache())
 app.use(mongoSanitize());
 
+// Limiter les tentatives de connexions
+const apiLimiter = rateLimit({
+	windowMs: 15 * 60 * 1000, // 15 minutes
+	max: 10, // Limit each IP to 100 requests per `window` (here, per 15 minutes)
+	standardHeaders: true, // Return rate limit info in the `RateLimit-*` headers
+	legacyHeaders: false, // Disable the `X-RateLimit-*` headers
+})
+
 // Routes sauces
-app.use('/api/sauces',sauceRoutes)
-app.use('/api/auth',userRoutes)
+app.use('/api/sauces', sauceRoutes)
+app.use('/api/auth', apiLimiter, userRoutes)
 
 
 module.exports = app;

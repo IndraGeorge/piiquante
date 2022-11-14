@@ -1,10 +1,12 @@
 const Sauce = require('../models/Sauces');
 const fs = require('fs')
 
-// Créer une sauce
+// Création d'une sauce
 exports.createSauce = (req, res, next) => {
     const sauceObject = JSON.parse(req.body.sauce)
-    let regexLetter = new RegExp("^[\-a-zA-Zéèîëïäöüçâ ]{3,30}$")
+
+    // Déclaration d'une regex
+    let regexLetter = new RegExp("^[\-a-zA-Zéèîëïäöüçâ' ]{3,30}$")
 
     // Condition afin de vérifier la validité des champs saisies pour la création d'une sauce
     if (regexLetter.test(sauceObject.name) && regexLetter.test(sauceObject.manufacturer) &&
@@ -29,9 +31,10 @@ exports.createSauce = (req, res, next) => {
 };
 
 
-// Mofifier une sauce
+// Modification d'une sauce
 exports.modifySauce = (req, res, next) => {
 
+    // On vérifie si l'image est modifiée avec l'opérateur ternaire
     const sauceObject = req.file ? {
 
         ...JSON.parse(req.body.sauce),
@@ -42,17 +45,33 @@ exports.modifySauce = (req, res, next) => {
 
     Sauce.findOne({ _id: req.params.id })
         .then(sauce => {
+
+            // Déclaration d'une regex
+            let regexLetter = new RegExp("^[\-a-zA-Zéèîëïäöüçâ' ]{3,30}$")
+
+            // On vérifie la validité des champs saisies pour la modification d'une sauce
+            if (regexLetter.test(sauceObject.name) && regexLetter.test(sauceObject.manufacturer) &&
+                regexLetter.test(sauceObject.description) && regexLetter.test(sauceObject.mainPepper)) {
+
+                console.log("correct information entered")
+
+            } else {
+                return res.status(400).json({ error: "Please enter correct information" })
+            }
+
+            // On vérifie si le userId correspond au propriétaire de la sauce
             if (req.auth.userId !== sauce.userId) {
                 return res.status(403).json({ message: "unauthorized request" })
 
             } else {
+
                 const filename = sauce.imageUrl.split('/images/')[1]
                 Sauce.updateOne({ _id: req.params.id },
-                    { ...sauceObject, _id: req.params.id },
-                )
+                    { ...sauceObject, _id: req.params.id })
+
                     .then(() => res.status(201).json({ message: "modified sauce" }))
 
-                    // Condition afin de vérifier si l'image a été modifiée
+                    // On supprime l'ancienne image si elle a été modifiée
                     .then(() => {
                         if (req.file) {
                             fs.unlink(`images/${filename}`, () => {
@@ -65,13 +84,14 @@ exports.modifySauce = (req, res, next) => {
                     })
                     .catch(error => res.status(400).json({ error }));
             }
+
         })
         .catch(error => res.status(500).json({ error }))
-     
+
 };
 
 
-// Supprimer une sauce
+// Suppression d'une sauce
 exports.deleteSauce = (req, res, next) => {
 
     Sauce.findOne({ _id: req.params.id })
@@ -92,12 +112,14 @@ exports.deleteSauce = (req, res, next) => {
         .catch(error => res.status(500).json({ error }))
 };
 
+
 // Afficher toutes les sauces
 exports.getSauces = (req, res, next) => {
     Sauce.find()
-        .then(things => res.status(200).json(things))
+        .then(sauces => res.status(200).json(sauces))
         .catch(error => res.status(404).json({ error }));
 }
+
 
 // Afficher une sauce
 exports.getOneSauce = (req, res, next) => {
@@ -105,71 +127,4 @@ exports.getOneSauce = (req, res, next) => {
         .then(sauce => res.status(200).json(sauce))
         .catch(error => res.status(404).json({ error }));
 }
-
-// Like et Dislike des utilisateurs sur une sauce
-exports.likesAndDislikeSauce = (req, res, next) => {
-    const like = req.body.like;
-    const userId = req.body.userId;
-
-    Sauce.findOne({ _id: req.params.id })
-        .then(sauce => {
-
-            switch (like) {
-                // L'utilisateur aime une sauce
-                case 1:
-                    if (!sauce.usersLiked.includes(userId)) {
-                        Sauce.updateOne({ _id: req.params.id },
-                            {
-                                $inc: { likes: +1 },
-                                $push: { usersLiked: userId }
-                            })
-                            .then(() => res.status(200).json({ message: "Like added" }))
-                            .catch(error => res.status(400).json({ error }))
-                    }
-                    break;
-
-                // L'utilisateur n'aime pas une sauce
-                case -1:
-                    if (!sauce.usersDisliked.includes(userId)) {
-                        Sauce.updateOne({ _id: req.params.id },
-                            {
-                                $inc: { dislikes: +1 },
-                                $push: { usersDisliked: userId }
-                            }
-                        )
-                            .then(() => res.status(200).json({ message: "Dislike added" }))
-                            .catch(error => res.status(400).json({ error }))
-                    }
-                    break;
-
-                // L'utilisateur enlève son like ou son dislike
-                case 0:
-                    if (sauce.usersLiked.includes(userId)) {
-                        Sauce.updateOne({ _id: req.params.id },
-                            {
-                                $inc: { likes: -1 },
-                                $pull: { usersLiked: userId }
-                            }
-                        )
-                            .then(() => res.status(200).json({ message: "Like added" }))
-                            .catch(error => res.status(400).json({ error }))
-
-                    } else if (sauce.usersDisliked.includes(userId)) {
-                        Sauce.updateOne({ _id: req.params.id },
-                            {
-                                $inc: { dislikes: -1 },
-                                $pull: { usersDisliked: userId }
-                            }
-                        )
-                            .then(() => res.status(200).json({ message: "Dislike added" }))
-                            .catch(error => res.status(400).json({ error }))
-                    }
-                    break;
-            }
-        })
-
-        .catch(error => res.status(500).json({ error }));
-}
-
-
 
