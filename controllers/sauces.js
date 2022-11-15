@@ -53,7 +53,7 @@ exports.modifySauce = (req, res, next) => {
             if (regexLetter.test(sauceObject.name) && regexLetter.test(sauceObject.manufacturer) &&
                 regexLetter.test(sauceObject.description) && regexLetter.test(sauceObject.mainPepper)) {
 
-                console.log("correct information entered")
+                    console.log('Correct informations')
 
             } else {
                 return res.status(400).json({ error: "Please enter correct information" })
