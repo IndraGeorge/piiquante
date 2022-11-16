@@ -5,13 +5,13 @@ const passwordSchema = new passwordValidator ()
 
 // Conditions à respecter pour un mot de passe valide
 passwordSchema
-.is().min(8)                                    // Minimum length 8
-.is().max(100)                                  // Maximum length 100
-.has().uppercase()                              // Must have uppercase letters
-.has().lowercase()                              // Must have lowercase letters
-.has().digits(2)                                // Must have at least 2 digits
-.has().not().spaces()                           // Should not have spaces
-.is().not().oneOf(['Passw0rd', 'Password123']); // Blacklist these values
+.is().min(8)                                    // Longueur minimale 8
+.is().max(100)                                  // Longueur maximale 100
+.has().uppercase()                              // Doit contenir des lettres majuscules
+.has().lowercase()                              // Doit contenir des lettres minuscules
+.has().digits(2)                                // Doit contenir au moins 2 chiffres
+.has().not().spaces()                           // Pas d'espace
+.is().not().oneOf(['Passw0rd', 'Password123']); // Mettre ces valeurs sur liste noire
 
 
 // Comparaison du mot de passe rentré par l'utilisateur par rapport au schéma 
