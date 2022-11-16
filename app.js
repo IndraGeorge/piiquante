@@ -40,6 +40,7 @@ app.use((req, res, next) => {
     next();
 });
 
+app.use(nocache())
 
 // Analyse le corps de la requête
 app.use(express.json());
@@ -47,7 +48,6 @@ app.use(express.json());
 // Sauvegarde des images en local
 app.use('/images', express.static(path.join(__dirname, 'images')))
 
-app.use(nocache())
 
 // Limite les tentatives de connexions
 const apiLimiter = rateLimit({
