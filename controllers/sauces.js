@@ -6,14 +6,13 @@ exports.createSauce = (req, res, next) => {
     const sauceObject = JSON.parse(req.body.sauce)
 
     // Déclaration d'une regex
-    let regexLetter = new RegExp("^[\-a-zA-Zéèîëïäöüçâ' ]{3,30}$")
+    let regexLetter = new RegExp("^[a-zA-Z0-9éèîëïäöüùçâà .',!?-]{3,30}$")
 
     // Condition afin de vérifier la validité des champs saisies pour la création d'une sauce
-    if (regexLetter.test(sauceObject.name) && regexLetter.test(sauceObject.manufacturer) &&
+    if (regexLetter.test(sauceObject.body.name) && regexLetter.test(sauceObject.manufacturer) &&
         regexLetter.test(sauceObject.description) && regexLetter.test(sauceObject.mainPepper)) {
 
-        // Suppression de l'id et de l'userId renvoyer par mangoDB
-        delete sauceObject._id;
+        delete sauceObject._id
         delete sauceObject.userId
 
         const sauce = new Sauce({
@@ -47,44 +46,40 @@ exports.modifySauce = (req, res, next) => {
         .then(sauce => {
 
             // Déclaration d'une regex
-            let regexLetter = new RegExp("^[\-a-zA-Zéèîëïäöüçâ' ]{3,30}$")
+            let regexLetter = new RegExp("^[a-zA-Z0-9éèîëïäöüùçâà .',!?-]{3,30}$")
 
             // On vérifie la validité des champs saisies pour la modification d'une sauce
             if (regexLetter.test(sauceObject.name) && regexLetter.test(sauceObject.manufacturer) &&
                 regexLetter.test(sauceObject.description) && regexLetter.test(sauceObject.mainPepper)) {
 
-                    console.log('Correct informations')
+                // On vérifie si le userId correspond au propriétaire de la sauce
+                if (req.auth.userId !== sauce.userId) {
+                    return res.status(403).json({ message: "unauthorized request" })
+
+                } else {
+
+                    const filename = sauce.imageUrl.split('/images/')[1]
+                    Sauce.updateOne({ _id: req.params.id },
+                        { ...sauceObject, _id: req.params.id })
+
+                        .then(() => res.status(201).json({ message: "modified sauce" }))
+
+                        // On supprime l'ancienne image si elle a été modifiée
+                        .then(() => {
+                            if (req.file) {
+                                fs.unlink(`images/${filename}`, () => {
+                                    return ('old picture delete')
+                                })
+                            }
+
+                        })
+                        .catch(error => res.status(400).json({ error }));
+                }
 
             } else {
                 return res.status(400).json({ error: "Please enter correct information" })
             }
-
-            // On vérifie si le userId correspond au propriétaire de la sauce
-            if (req.auth.userId !== sauce.userId) {
-                return res.status(403).json({ message: "unauthorized request" })
-
-            } else {
-
-                const filename = sauce.imageUrl.split('/images/')[1]
-                Sauce.updateOne({ _id: req.params.id },
-                    { ...sauceObject, _id: req.params.id })
-
-                    .then(() => res.status(201).json({ message: "modified sauce" }))
-
-                    // On supprime l'ancienne image si elle a été modifiée
-                    .then(() => {
-                        if (req.file) {
-                            fs.unlink(`images/${filename}`, () => {
-                                console.log("old picture deleted")
-                            })
-                        } else {
-                            console.log("preserved image")
-                        }
-
-                    })
-                    .catch(error => res.status(400).json({ error }));
-            }
-
+            
         })
         .catch(error => res.status(500).json({ error }))
 

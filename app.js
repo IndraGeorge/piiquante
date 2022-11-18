@@ -4,7 +4,8 @@ const path = require('path')
 const helmet = require('helmet')
 const nocache = require("nocache")
 const mongoSanitize = require('express-mongo-sanitize')
-const rateLimit = require('express-rate-limit')
+const bodyParser = require('body-parser')
+const {xss} = require('express-xss-sanitizer')
 
 // Déclaration des constantes pour les routes sauce et utilisateur
 const sauceRoutes = require('./routes/sauces')
@@ -23,14 +24,19 @@ mongoose.connect(`mongodb+srv://${process.env.MONGODB_USER}:${process.env.MONGOD
 // Déclaration de la variable express
 const app = express()
 
-// Nettoie les données fournies par l'utilisateur pour empêcher l'injection d'opérateur MongoDB.
-app.use(mongoSanitize())
+// Supprime le cache navigateur
+app.use(nocache())
 
 
 // Sécurise les en-têtes http
 app.use(helmet({
     crossOriginResourcePolicy: false,
-  }))
+}))
+
+
+// Nettoie les données fournies par l'utilisateur pour empêcher l'injection d'opérateur MongoDB.
+app.use(mongoSanitize())
+
 
 // En-têtes htpp
 app.use((req, res, next) => {
@@ -40,27 +46,21 @@ app.use((req, res, next) => {
     next();
 });
 
-app.use(nocache())
-
 // Analyse le corps de la requête
-app.use(express.json());
+app.use(bodyParser.json({limit:'1kb'}));
+app.use(bodyParser.urlencoded({extended: true, limit:'1kb'}));
+
+// Empêche les injections xss
+app.use(xss())
+
 
 // Sauvegarde des images en local
 app.use('/images', express.static(path.join(__dirname, 'images')))
 
 
-// Limite les tentatives de connexions
-const apiLimiter = rateLimit({
-    windowMs: 15 * 60 * 1000, // 15 minutes
-    max: 10, // Limitez chaque adresse IP à 100 requêtes par "fenêtre" (par tranche de 15 minutes)
-    standardHeaders: true, // Renvoyer les informations de limite de taux dans les en-têtes `RateLimit-*`
-    legacyHeaders: false, // Désactiver les en-têtes `X-RateLimit-*`
-})
-
-
 // Routes sauces
 app.use('/api/sauces', sauceRoutes)
-app.use('/api/auth', apiLimiter, userRoutes)
+app.use('/api/auth', userRoutes)
 
 
 module.exports = app;
