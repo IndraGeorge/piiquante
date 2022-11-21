@@ -7,12 +7,13 @@ const mongoSanitize = require('express-mongo-sanitize')
 const bodyParser = require('body-parser')
 const {xss} = require('express-xss-sanitizer')
 
+
 // Déclaration des constantes pour les routes sauce et utilisateur
 const sauceRoutes = require('./routes/sauces')
 const userRoutes = require('./routes/user')
 
-
 require('dotenv').config()
+
 // Connexion à mongodb
 mongoose.connect(`mongodb+srv://${process.env.MONGODB_USER}:${process.env.MONGODB_PASSWORD}@${process.env.MONGODB_CLUSTER_NAME}.${process.env.MONGODB_DATABASE_NAME}.mongodb.net/?retryWrites=true&w=majority`,
     {
@@ -24,7 +25,7 @@ mongoose.connect(`mongodb+srv://${process.env.MONGODB_USER}:${process.env.MONGOD
 // Déclaration de la variable express
 const app = express()
 
-// Supprime le cache navigateur
+// Désactiver la mise en cache côté client
 app.use(nocache())
 
 
