@@ -6,11 +6,11 @@ exports.createSauce = (req, res, next) => {
     const sauceObject = JSON.parse(req.body.sauce)
 
     // Déclaration d'une regex
-    let regexLetter = new RegExp("^[a-zA-Z0-9éèîëïäöüùçâà .',!?-]{3,30}$")
+    let regex = new RegExp("^[a-zA-Z0-9éèîëïäöüùçâà .',!?-]{3,30}$")
 
     // Condition afin de vérifier la validité des champs saisies pour la création d'une sauce
-    if (regexLetter.test(sauceObject.name) && regexLetter.test(sauceObject.manufacturer) &&
-        regexLetter.test(sauceObject.description) && regexLetter.test(sauceObject.mainPepper)) {
+    if (regex.test(sauceObject.name) && regex.test(sauceObject.manufacturer) &&
+        regex.test(sauceObject.description) && regex.test(sauceObject.mainPepper)) {
 
         // On enlève l'id du corps de la requête
         delete sauceObject._id
@@ -48,11 +48,11 @@ exports.modifySauce = (req, res, next) => {
         .then(sauce => {
 
             // Déclaration d'une regex
-            let regexLetter = new RegExp("^[a-zA-Z0-9éèîëïäöüùçâà .',!?-]{3,30}$")
+            let regex = new RegExp("^[a-zA-Z0-9éèîëïäöüùçâà .',!?-]{3,30}$")
 
             // On vérifie la validité des champs saisis pour la modification d'une sauce
-            if (regexLetter.test(sauceObject.name) && regexLetter.test(sauceObject.manufacturer) &&
-                regexLetter.test(sauceObject.description) && regexLetter.test(sauceObject.mainPepper)) {
+            if (regex.test(sauceObject.name) && regex.test(sauceObject.manufacturer) &&
+                regex.test(sauceObject.description) && regex.test(sauceObject.mainPepper)) {
 
                 // On vérifie si le userId correspond au propriétaire de la sauce
                 if (req.auth.userId !== sauce.userId) {
@@ -81,7 +81,7 @@ exports.modifySauce = (req, res, next) => {
             } else {
                 return res.status(400).json({ error: "Please enter correct information" })
             }
-            
+
         })
         .catch(error => res.status(500).json({ error }))
 

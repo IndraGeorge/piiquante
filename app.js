@@ -8,7 +8,7 @@ const bodyParser = require('body-parser')
 const {xss} = require('express-xss-sanitizer')
 
 
-// Déclaration des constantes pour les routes sauce et utilisateur
+// Déclaration des constantes pour les routes sauces et utilisateur
 const sauceRoutes = require('./routes/sauces')
 const userRoutes = require('./routes/user')
 
