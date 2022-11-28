@@ -17,7 +17,7 @@
     "express-xss-sanitizer": "^1.1.6",
     "helmet": "^6.0.0",
     "jsonwebtoken": "^8.5.1",
-    "mongoose": "^6.7.1",
+    "mongoose": "^6.7.2",
     "mongoose-bcrypt": "^1.10.0",
     "mongoose-unique-validator": "^3.1.0",
     "multer": "^1.4.5-lts.1",
